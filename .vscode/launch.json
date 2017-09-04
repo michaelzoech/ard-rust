@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations":[
+        {
+            "type": "gdb",
+            "request": "launch",
+            "name": "Debug",
+            "target": "./target/debug/ard",
+            "cwd": "${workspaceRoot}"
+        }
+    ]
+}
