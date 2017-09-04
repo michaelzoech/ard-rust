@@ -1,0 +1,6 @@
+[package]
+name = "ard"
+version = "0.1.0"
+authors = ["Michael Zoech <michi.zoech@gmail.com>"]
+
+[dependencies]
