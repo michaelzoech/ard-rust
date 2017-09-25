@@ -1,25 +1,34 @@
-use std;
-use std::convert::AsRef;
-use std::fs::File;
-use std::io::BufWriter;
-use std::io::Write;
-use std::path::Path;
+#[macro_use]
+mod macros;
 
+pub mod camera;
+pub mod color;
+pub mod io;
+pub mod math;
+pub mod shapes;
+
+use std;
+
+use self::color::Color;
+use self::io::OutputStream;
+
+/// A 2-dimensional pixel buffer.
+/// The x coordinate goes from 0 to width (exclusive), from left to right.
+/// The y coordinate goes from 0 to height (exclusive), from top to bottom.
 pub struct RenderBuffer {
     width: u32,
     height: u32,
-    pixels: Vec<u8>,
+    pixels: Vec<Color>,
 }
 
 impl RenderBuffer {
 
     pub fn new(width: u32, height: u32) -> RenderBuffer {
-        if width == 0 || height == 0 {
-            panic!("Width or Height cannot be 0");
-        }
+        expect_neq!(width, 0);
+        expect_neq!(height, 0);
 
         let mut pixels = Vec::new();
-        pixels.resize((width * height * 4) as usize, 0);
+        pixels.resize((width * height) as usize, Color { r: 0.0, g: 0.0, b: 0.0, a: 0.0 });
 
         RenderBuffer {
             width: width,
@@ -28,21 +37,23 @@ impl RenderBuffer {
         }
     }
 
-    pub fn set_pixel(self: &mut RenderBuffer, x: u32, y: u32, argb: u32) {
-        let start = ((y * self.width + x) * 4) as usize;
-        self.pixels[start] = (argb & 0xff) as u8;
-        self.pixels[start+1] = ((argb>>8) & 0xff) as u8;
-        self.pixels[start+2] = ((argb>>16) & 0xff) as u8;
-        self.pixels[start+3] = ((argb>>24) & 0xff) as u8;
+    pub fn set_pixel(&mut self, x: u32, y: u32, color: Color) {
+        expect_le!(x, self.width);
+        expect_le!(y, self.height);
+
+        let pos = (y * self.width + x) as usize;
+        self.pixels[pos] = color;
     }
 
-    pub fn write_to_file<P: AsRef<Path>>(self: &RenderBuffer, path: P) -> std::io::Result<()> {
+    pub fn write_to_file<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<()> {
         let mut out = OutputStream::new(path)?;
 
         let row_padding = ((4 - self.width % 4)) % 4;
         let header_size = 14 + 40;
         let image_size = (self.width * 3 + row_padding) * self.height;
         let file_size = header_size + image_size;
+
+        let padding: Vec<u8> = std::iter::repeat(0).take(row_padding as usize).collect();
 
         // file header
         out.write(&[0x42, 0x4d])?;
@@ -56,7 +67,7 @@ impl RenderBuffer {
         out.write_u32_le(self.width)?;
         out.write_u32_le(self.height)?;
         out.write_u16_le(1)?;
-        out.write_u32_le(24)?;
+        out.write_u16_le(24)?;
         out.write_u32_le(0)?;
         out.write_u32_le(image_size)?;
         out.write_u32_le(0)?;
@@ -64,51 +75,17 @@ impl RenderBuffer {
         out.write_u32_le(0)?;
         out.write_u32_le(0)?;
 
-        // pixels
+        // Pixels are written in rows, starting from bottom-left.
         for y in 0..self.height {
-            let mut start = (y * self.width * 4) as usize;
-            for _ in 0..self.width {
-                out.write(&self.pixels[start..start+3])?;
-                start += 4;
+            let mut index = ((self.height - y - 1) * self.width) as usize;
+            for x in 0..self.width {
+                let rgb = self.pixels[index].to_rgba32();
+                out.write(&[(rgb&0xff) as u8, ((rgb>>8)&0xff) as u8, ((rgb>>16)&0xff) as u8])?;
+                index += 1;
             }
-            if row_padding > 2 {
-                out.write(&[0])?;
-            }
-            if row_padding > 1 {
-                out.write(&[0])?;
-            }
-            if row_padding > 0 {
-                out.write(&[0])?;
-            }
+            out.write(padding.as_slice())?;
         }
 
         Ok(())
-    }
-}
-
-struct OutputStream {
-    writer: Box<Write>,
-}
-
-impl OutputStream {
-
-    fn new<P: AsRef<Path>>(path: P) -> std::io::Result<OutputStream> {
-        let file = File::create(path)?;
-        let writer = BufWriter::new(file);
-        Ok(OutputStream {
-            writer: Box::new(writer)
-        })
-    }
-
-    fn write(self: &mut OutputStream, array: &[u8]) -> std::result::Result<(), std::io::Error> {
-        self.writer.write_all(array)
-    }
-
-    fn write_u16_le(self: &mut OutputStream, value: u16) -> std::result::Result<(), std::io::Error> {
-        self.writer.write_all(&[(value&0xff) as u8, ((value>>8)&0xff) as u8])
-    }
-
-    fn write_u32_le(self: &mut OutputStream, value: u32) -> std::result::Result<(), std::io::Error> {
-        self.writer.write_all(&[(value&0xff) as u8, ((value>>8)&0xff) as u8, ((value>>16)&0xff) as u8, ((value>>24)&0xff) as u8])
     }
 }

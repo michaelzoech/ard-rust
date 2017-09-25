@@ -5,7 +5,14 @@
             "type": "gdb",
             "request": "launch",
             "name": "Debug",
-            "target": "./target/debug/ard",
+            "target": "${workspaceRoot}/target/debug/ard",
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug",
+            "program": "${workspaceRoot}/target/debug/ard",
             "cwd": "${workspaceRoot}"
         }
     ]
