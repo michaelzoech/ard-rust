@@ -2,11 +2,20 @@ use std::option::Option;
 
 use ard::math::{Ray3, Vector3};
 
-pub trait Hitable {
-
-    fn intersect(&self, ray: &Ray3) -> Option<f64>;
+#[derive(Clone, Copy)]
+pub struct Intersection {
+    pub ray: Ray3,
+    pub t: f64,
+    pub point: Vector3,
+    pub normal: Vector3,
 }
 
+pub trait Hitable {
+
+    fn intersect(&self, ray: &Ray3) -> Option<Intersection>;
+}
+
+#[derive(Clone, Copy)]
 pub struct Sphere {
     pub center: Vector3,
     pub radius: f64,
@@ -14,7 +23,7 @@ pub struct Sphere {
 
 impl Hitable for Sphere {
 
-    fn intersect(self: &Sphere, ray: &Ray3) -> Option<f64> {
+    fn intersect(self: &Sphere, ray: &Ray3) -> Option<Intersection> {
         let v = ray.origin - self.center;
         let a = ray.direction.dot(&ray.direction);
         let b = (v * 2.0).dot(&ray.direction);
@@ -22,20 +31,32 @@ impl Hitable for Sphere {
         let disc = b * b - 4.0 * a * c;
 
         if disc < 0.0 {
-            None
-        } else {
-            let e = disc.sqrt();
-            let denom = 2.0 * a;
-            let t = (-b - e) / denom;
-            let t2 = (-b + e) / denom;
-            if t > 0.0001 {
-                Some(t)
-            } else if t2 > 0.0001 {
-                Some(t2)
-            } else {
-                None
-            }
+            return None;
         }
+
+        let e = disc.sqrt();
+        let denom = 2.0 * a;
+        let t1 = (-b - e) / denom;
+        let t2 = (-b + e) / denom;
+        let mut t;
+
+        if t1 > 0.0001 {
+            t = t1;
+        } else if t2 > 0.0001 {
+            t = t2;
+        } else {
+            return None;
+        }
+
+        let point = ray.point_at(t);
+        let normal = (point - self.center) / self.radius;
+
+        Some(Intersection {
+            ray: *ray,
+            t: t,
+            point: point,
+            normal: normal,
+        })
     }
 }
 

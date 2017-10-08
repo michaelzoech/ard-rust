@@ -1,5 +1,7 @@
 use std::ops::Add;
 use std::ops::AddAssign;
+use std::ops::Div;
+use std::ops::DivAssign;
 use std::ops::Mul;
 use std::ops::MulAssign;
 use std::ops::Neg;
@@ -32,6 +34,27 @@ impl AddAssign for Vector3 {
         self.x += rhs.x;
         self.y += rhs.y;
         self.z += rhs.z;
+    }
+}
+
+impl Div<f64> for Vector3 {
+    type Output = Vector3;
+
+    fn div(self, rhs: f64) -> Vector3 {
+        Vector3 {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+        }
+    }
+}
+
+impl DivAssign<f64> for Vector3 {
+
+    fn div_assign(&mut self, rhs: f64) {
+        self.x /= rhs;
+        self.y /= rhs;
+        self.z /= rhs;
     }
 }
 

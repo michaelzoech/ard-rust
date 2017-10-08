@@ -80,7 +80,7 @@ impl RenderBuffer {
             let mut index = ((self.height - y - 1) * self.width) as usize;
             for x in 0..self.width {
                 let rgb = self.pixels[index].to_rgba32();
-                out.write(&[(rgb&0xff) as u8, ((rgb>>8)&0xff) as u8, ((rgb>>16)&0xff) as u8])?;
+                out.write(&[((rgb>>16)&0xff) as u8, ((rgb>>8)&0xff) as u8, (rgb&0xff) as u8])?;
                 index += 1;
             }
             out.write(padding.as_slice())?;
