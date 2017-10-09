@@ -5,6 +5,7 @@ pub mod camera;
 pub mod color;
 pub mod io;
 pub mod math;
+pub mod sampler;
 pub mod shapes;
 
 use std;

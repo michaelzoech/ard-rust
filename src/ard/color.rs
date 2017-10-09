@@ -1,3 +1,5 @@
+use std::ops::AddAssign;
+use std::ops::DivAssign;
 
 #[derive(Clone, Copy)]
 pub struct Color {
@@ -5,6 +7,26 @@ pub struct Color {
     pub g: f64,
     pub b: f64,
     pub a: f64,
+}
+
+impl AddAssign for Color {
+
+    fn add_assign(&mut self, rhs: Color) {
+        self.r += rhs.r;
+        self.g += rhs.g;
+        self.b += rhs.b;
+        self.a += rhs.a;
+    }
+}
+
+impl DivAssign<f64> for Color {
+
+    fn div_assign(&mut self, rhs: f64) {
+        self.r /= rhs;
+        self.g /= rhs;
+        self.b /= rhs;
+        self.a /= rhs;
+    }
 }
 
 impl Color {
