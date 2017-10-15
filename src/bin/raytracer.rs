@@ -11,7 +11,7 @@ fn main() {
     let height: u32 = 480;
     let pixel_size: f64 = 0.01;
     let mut render_buffer = ard::RenderBuffer::new(width, height);
-    let sampler = Sampler::regular_sampler(4);
+    let sampler = Sampler::regular_sampler(4, 10.0);
     let camera = OrthographicCamera::new(&Vector3::new(0.0, 0.0, 5.0), &Vector3::zero(), &Vector3::new(0.0, 1.0, 0.0));
 
     let objects = [

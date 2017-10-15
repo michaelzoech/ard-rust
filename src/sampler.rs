@@ -1,4 +1,7 @@
 use std::f64::consts::{PI};
+use rand;
+use rand::distributions::{IndependentSample, Range};
+
 use math::{Vector3};
 
 #[derive(Clone, Debug)]
@@ -18,7 +21,7 @@ impl Sampler {
         }
     }
 
-    pub fn regular_sampler(samples_per_axis: usize) -> Sampler {
+    pub fn regular_sampler(samples_per_axis: usize, e: f64) -> Sampler {
         let mut unit_square_samples = Vec::with_capacity(samples_per_axis * samples_per_axis);
         let axis_samples = samples_per_axis as f64;
         let offset = 1.0 / (axis_samples * 2.0);
@@ -29,7 +32,28 @@ impl Sampler {
                 unit_square_samples.push((fx, fy));
             }
         }
-        let hemisphere_samples = unit_square_samples.iter().map(|p| unit_square_sample_to_hemisphere_sample(10.0, *p)).collect();
+        let hemisphere_samples = unit_square_samples.iter().map(|p| unit_square_sample_to_hemisphere_sample(e, *p)).collect();
+        Sampler {
+            unit_square_samples: unit_square_samples,
+            hemisphere_samples: hemisphere_samples,
+        }
+    }
+
+    pub fn jittered_sampler(samples_per_axis: usize, e: f64) -> Sampler {
+        let mut unit_square_samples = Vec::with_capacity(samples_per_axis * samples_per_axis);
+
+        let mut rng = rand::thread_rng();
+        let between = Range::new(0.0f64, 1.0);
+        let box_dim = 1.0 / (samples_per_axis as f64);
+
+        for y in 0..samples_per_axis {
+            for x in 0..samples_per_axis {
+                let fx = box_dim * (x as f64) + box_dim * between.ind_sample(&mut rng);
+                let fy = box_dim * (y as f64) + box_dim * between.ind_sample(&mut rng);
+                unit_square_samples.push((fx, fy));
+            }
+        }
+        let hemisphere_samples = unit_square_samples.iter().map(|p| unit_square_sample_to_hemisphere_sample(e, *p)).collect();
         Sampler {
             unit_square_samples: unit_square_samples,
             hemisphere_samples: hemisphere_samples,
@@ -56,7 +80,7 @@ mod tests {
 
     #[test]
     fn regular_sampler_one_per_axis() {
-        let one_per_axis =  Sampler::regular_sampler(1);
+        let one_per_axis =  Sampler::regular_sampler(1, 0.0);
         assert_eq!(1, one_per_axis.samples.len());
         assert_close!(0.5, one_per_axis.samples[0].0);
         assert_close!(0.5, one_per_axis.samples[0].1);
@@ -64,7 +88,7 @@ mod tests {
 
     #[test]
     fn regular_sampler_two_per_axis() {
-        let one_per_axis =  Sampler::regular_sampler(2);
+        let one_per_axis =  Sampler::regular_sampler(2, 0.0);
         assert_eq!(4, one_per_axis.samples.len());
         assert_close!(0.25, one_per_axis.samples[0].0);
         assert_close!(0.25, one_per_axis.samples[0].1);
