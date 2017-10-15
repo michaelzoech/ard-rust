@@ -81,18 +81,18 @@ mod tests {
     #[test]
     fn regular_sampler_one_per_axis() {
         let one_per_axis =  Sampler::regular_sampler(1, 0.0);
-        assert_eq!(1, one_per_axis.samples.len());
-        assert_close!(0.5, one_per_axis.samples[0].0);
-        assert_close!(0.5, one_per_axis.samples[0].1);
+        assert_eq!(1, one_per_axis.unit_square_samples.len());
+        assert_close!(0.5, one_per_axis.unit_square_samples[0].0);
+        assert_close!(0.5, one_per_axis.unit_square_samples[0].1);
     }
 
     #[test]
     fn regular_sampler_two_per_axis() {
         let one_per_axis =  Sampler::regular_sampler(2, 0.0);
-        assert_eq!(4, one_per_axis.samples.len());
-        assert_close!(0.25, one_per_axis.samples[0].0);
-        assert_close!(0.25, one_per_axis.samples[0].1);
-        assert_close!(0.75, one_per_axis.samples[1].0);
-        assert_close!(0.25, one_per_axis.samples[1].1);
+        assert_eq!(4, one_per_axis.unit_square_samples.len());
+        assert_close!(0.25, one_per_axis.unit_square_samples[0].0);
+        assert_close!(0.25, one_per_axis.unit_square_samples[0].1);
+        assert_close!(0.75, one_per_axis.unit_square_samples[1].0);
+        assert_close!(0.25, one_per_axis.unit_square_samples[1].1);
     }
 }

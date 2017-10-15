@@ -2,7 +2,7 @@ macro_rules! assert_close {
     ($left:expr, $right:expr) => ({
         match (&$left, &$right) {
             (left_val, right_val) => {
-                use ard::math::CloseEq;
+                use math::CloseEq;
                 if left_val.close_ne(right_val) {
                     panic!("assertion failed: `(left =~= right)`, (left: `{:?}`, right: `{:?}`)", left_val, right_val);
                 }
