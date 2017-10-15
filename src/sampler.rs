@@ -1,31 +1,52 @@
+use std::f64::consts::{PI};
+use math::{Vector3};
 
 #[derive(Clone, Debug)]
 pub struct Sampler {
-    pub samples: Vec<(f64, f64)>
+    pub unit_square_samples: Vec<(f64, f64)>,
+    pub hemisphere_samples: Vec<Vector3>,
 }
 
 impl Sampler {
 
     pub fn standard_sampler() -> Sampler {
+        let unit_square_samples = vec![(0.5, 0.5)];
+        let hemisphere_samples = unit_square_samples.iter().map(|p| unit_square_sample_to_hemisphere_sample(10.0, *p)).collect();
         Sampler {
-            samples: vec![(0.5, 0.5)]
+            unit_square_samples: unit_square_samples,
+            hemisphere_samples: hemisphere_samples,
         }
     }
 
     pub fn regular_sampler(samples_per_axis: usize) -> Sampler {
-        let mut samples = Vec::with_capacity(samples_per_axis * samples_per_axis);
+        let mut unit_square_samples = Vec::with_capacity(samples_per_axis * samples_per_axis);
         let axis_samples = samples_per_axis as f64;
         let offset = 1.0 / (axis_samples * 2.0);
         for y in 0..samples_per_axis {
             let fy = offset + (y as f64) / axis_samples;
             for x in 0..samples_per_axis {
                 let fx = offset + (x as f64) / axis_samples;
-                samples.push((fx, fy));
+                unit_square_samples.push((fx, fy));
             }
         }
+        let hemisphere_samples = unit_square_samples.iter().map(|p| unit_square_sample_to_hemisphere_sample(10.0, *p)).collect();
         Sampler {
-            samples: samples
+            unit_square_samples: unit_square_samples,
+            hemisphere_samples: hemisphere_samples,
         }
+    }
+}
+
+fn unit_square_sample_to_hemisphere_sample(e: f64, point: (f64, f64)) -> Vector3 {
+    let cosphi = (2.0 * PI * point.0).cos();
+    let sinphi = (2.0 * PI * point.0).sin();
+    let costheta = (1.0 - point.1).powf( 1.0 / (e + 1.0));
+    let sintheta = (1.0 - costheta * costheta).sqrt();
+
+    Vector3 {
+        x: sintheta * cosphi,
+        y: sintheta * sinphi,
+        z: costheta,
     }
 }
 

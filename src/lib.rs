@@ -8,8 +8,6 @@ pub mod math;
 pub mod sampler;
 pub mod shapes;
 
-use std;
-
 use self::color::Color;
 use self::io::OutputStream;
 
@@ -79,7 +77,7 @@ impl RenderBuffer {
         // Pixels are written in rows, starting from bottom-left.
         for y in 0..self.height {
             let mut index = ((self.height - y - 1) * self.width) as usize;
-            for x in 0..self.width {
+            for _ in 0..self.width {
                 let rgb = self.pixels[index].to_rgba32();
                 out.write(&[((rgb>>16)&0xff) as u8, ((rgb>>8)&0xff) as u8, (rgb&0xff) as u8])?;
                 index += 1;

@@ -1,4 +1,4 @@
-mod ard;
+extern crate ard;
 
 use ard::camera::*;
 use ard::color::*;
@@ -33,7 +33,7 @@ fn main() {
         for x in 0..width {
             let mut color = Color { r: 0.0, g: 0.0, b: 0.0, a: 0.0};
 
-            for &(sx, sy) in sampler.samples.iter() {
+            for &(sx, sy) in sampler.unit_square_samples.iter() {
                 let dx = pixel_size * ((x as f64) - 0.5 * (width as f64) + (sx - 0.5));
                 let dy = - pixel_size * ((y as f64) - 0.5 * (height as f64) + (sy - 0.5));
                 let ray = camera.generate_ray(dx, dy);
@@ -52,7 +52,7 @@ fn main() {
                 };
             }
 
-            color /= sampler.samples.len() as f64;
+            color /= sampler.unit_square_samples.len() as f64;
 
             render_buffer.set_pixel(x, y, color);
         }

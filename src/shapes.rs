@@ -1,6 +1,6 @@
 use std::option::Option;
 
-use ard::math::{Ray3, Vector3};
+use math::{Ray3, Vector3};
 
 #[derive(Clone, Copy)]
 pub struct Intersection {
@@ -38,7 +38,7 @@ impl Hitable for Sphere {
         let denom = 2.0 * a;
         let t1 = (-b - e) / denom;
         let t2 = (-b + e) / denom;
-        let mut t;
+        let t;
 
         if t1 > 0.0001 {
             t = t1;

@@ -1,5 +1,5 @@
 
-use ard::math::*;
+use math::*;
 
 pub trait Camera {
 
