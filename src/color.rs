@@ -1,12 +1,27 @@
+use std::ops::Add;
 use std::ops::AddAssign;
 use std::ops::DivAssign;
+use std::ops::Mul;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Color {
     pub r: f64,
     pub g: f64,
     pub b: f64,
     pub a: f64,
+}
+
+impl Add for Color {
+    type Output = Color;
+
+    fn add(self, rhs: Color) -> Color {
+        Color {
+            r: self.r + rhs.r,
+            g: self.g + rhs.g,
+            b: self.b + rhs.b,
+            a: self.a + rhs.a,
+        }
+    }
 }
 
 impl AddAssign for Color {
@@ -29,7 +44,41 @@ impl DivAssign<f64> for Color {
     }
 }
 
+impl Mul<f64> for Color {
+    type Output = Color;
+
+    fn mul(self, rhs: f64) -> Color {
+        Color {
+            r: self.r * rhs,
+            g: self.g * rhs,
+            b: self.b * rhs,
+            a: self.a * rhs,
+        }
+    }
+}
+
+impl Mul for Color {
+    type Output = Color;
+
+    fn mul(self, rhs: Color) -> Color {
+        Color {
+            r: self.r * rhs.r,
+            g: self.g * rhs.g,
+            b: self.b * rhs.b,
+            a: self.a * rhs.a,
+        }
+    }
+}
+
 impl Color {
+
+    pub fn black() -> Color {
+        Color { r: 0.0, g: 0.0, b: 0.0, a: 1.0 }
+    }
+
+    pub fn white() -> Color {
+        Color { r: 1.0, g: 1.0, b: 1.0, a: 1.0 }
+    }
 
     pub fn to_rgba32(&self) -> u32 {
         let r = (clamp(self.r, 0.0, 1.0) * 255.0) as u32;

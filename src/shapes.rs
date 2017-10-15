@@ -1,13 +1,16 @@
 use std::option::Option;
+use std::rc::Rc;
 
+use material::Material;
 use math::{Ray3, Vector3};
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Intersection {
     pub ray: Ray3,
     pub t: f64,
     pub point: Vector3,
     pub normal: Vector3,
+    pub material: Rc<Material>,
 }
 
 pub trait Hitable {
@@ -15,10 +18,11 @@ pub trait Hitable {
     fn intersect(&self, ray: &Ray3) -> Option<Intersection>;
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Sphere {
     pub center: Vector3,
     pub radius: f64,
+    pub material: Rc<Material>,
 }
 
 impl Hitable for Sphere {
@@ -56,6 +60,7 @@ impl Hitable for Sphere {
             t: t,
             point: point,
             normal: normal,
+            material: self.material.clone(),
         })
     }
 }

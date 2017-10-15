@@ -30,7 +30,7 @@ impl OrthographicCamera {
         OrthographicCamera {
             eye: *eye,
             lookat: *lookat,
-            direction: *lookat - *eye,
+            direction: (*lookat - *eye).normalized(),
             uvw: calculate_uvw(eye, lookat, up)
         }
     }

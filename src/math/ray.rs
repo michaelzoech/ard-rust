@@ -1,6 +1,8 @@
+use std::default::Default;
+
 use super::*;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Ray3 {
     pub origin: Vector3,
     pub direction: Vector3,
@@ -14,6 +16,10 @@ impl CloseEq for Ray3 {
 }
 
 impl Ray3 {
+
+    pub fn default() -> Ray3 {
+        Default::default()
+    }
 
     pub fn new(origin: Vector3, direction: Vector3) -> Ray3 {
         Ray3 {

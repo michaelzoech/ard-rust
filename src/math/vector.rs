@@ -9,7 +9,7 @@ use std::ops::Sub;
 use std::ops::SubAssign;
 use super::*;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Vector3 {
     pub x: f64,
     pub y: f64,
@@ -66,6 +66,18 @@ impl Mul<f64> for Vector3 {
             x: self.x * rhs,
             y: self.y * rhs,
             z: self.z * rhs,
+        }
+    }
+}
+
+impl Mul<Vector3> for f64 {
+    type Output = Vector3;
+
+    fn mul(self, rhs: Vector3) -> Vector3 {
+        Vector3 {
+            x: self * rhs.x,
+            y: self * rhs.y,
+            z: self * rhs.z,
         }
     }
 }
@@ -169,6 +181,10 @@ impl Vector3 {
             y: self.z * other.x - self.x * other.z,
             z: self.x * other.y - self.y * other.x,
         }
+    }
+
+    pub fn reflect(&self, reflector: &Vector3) -> Vector3 {
+        *self - 2.0 * self.dot(reflector) * *reflector
     }
 }
 

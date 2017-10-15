@@ -6,6 +6,7 @@ mod macros;
 pub mod camera;
 pub mod color;
 pub mod io;
+pub mod material;
 pub mod math;
 pub mod sampler;
 pub mod shapes;
