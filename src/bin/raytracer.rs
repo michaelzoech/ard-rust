@@ -9,32 +9,20 @@ use ard::material::*;
 use ard::math::*;
 use ard::sampler::*;
 use ard::shapes::*;
-
-fn trace(ray: &Ray3, objects: &Vec<&Hitable>, depth: u32) -> Color {
-    let have_hit = objects.into_iter()
-        .filter_map(|o| o.intersect(&ray))
-        .min_by(|a: &Intersection, b: &Intersection| a.t.partial_cmp(&b.t).unwrap());
-
-    if let Some(intersection) = have_hit {
-        let mut scattered = Ray3::default();
-        let mut attenuation = Color::black();
-        if depth < 10 && (*intersection.material).scatter(ray, &intersection, &mut attenuation, &mut scattered) {
-            return trace(&scattered, objects, depth + 1) * attenuation;
-        } else {
-            return Color::black();
-        }
-    } else {
-        let t = 0.5 * (ray.direction.y + 1.0);
-        return Color::white() * (1.0-t) + Color {r: 0.5, g: 0.7, b: 1.0, a: 0.0} * t;
-    }
-}
+use ard::trace::*;
 
 fn main() {
-    let width: u32 = 640;
-    let height: u32 = 480;
-    let pixel_size: f64 = 0.01;
-    let mut render_buffer = ard::RenderBuffer::new(width, height);
-    let sampler = Sampler::regular_sampler(4, 10.0);
+
+    let trace_config = TraceConfig {
+        image_width: 640,
+        image_height: 480,
+        pixel_size: 0.01,
+        pixel_sampler: Sampler::regular_sampler(4, 10.0),
+        max_trace_depth: 10,
+    };
+
+    let mut tracer = Tracer::new(&trace_config);
+
     let camera = OrthographicCamera::new(&Vector3::new(0.0, 2.0, 4.5), &Vector3::new(0.0, 1.2, 0.0), &Vector3::new(0.0, 1.0, 0.0));
 
     let objects = [
@@ -64,27 +52,11 @@ fn main() {
 
     let start_time = Instant::now();
 
-    for y in 0..height {
-        for x in 0..width {
-            let mut color = Color::black();
-
-            for &(sx, sy) in sampler.unit_square_samples.iter() {
-                let dx = pixel_size * ((x as f64) - 0.5 * (width as f64) + (sx - 0.5));
-                let dy = - pixel_size * ((y as f64) - 0.5 * (height as f64) + (sy - 0.5));
-                let ray = camera.generate_ray(dx, dy);
-
-                color += trace(&ray, &objects_vector, 0);
-            }
-
-            color /= sampler.unit_square_samples.len() as f64;
-
-            render_buffer.set_pixel(x, y, color);
-        }
-    }
+    tracer.trace(&camera, &objects_vector);
 
     let elapsed = start_time.elapsed().as_secs();
 
     println!("Image rendered in {0} seconds", elapsed);
 
-    render_buffer.write_to_file("image.bmp").expect("Cannot write bitmap");    
+    tracer.write_to_file("image.bmp").expect("Cannot write bitmap");
 }

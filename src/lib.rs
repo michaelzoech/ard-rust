@@ -10,6 +10,7 @@ pub mod material;
 pub mod math;
 pub mod sampler;
 pub mod shapes;
+pub mod trace;
 
 use self::color::Color;
 use self::io::OutputStream;
