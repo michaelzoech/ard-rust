@@ -17,8 +17,8 @@ fn main() {
         image_width: 640,
         image_height: 480,
         pixel_size: 0.01,
-        pixel_sampler: Sampler::regular_sampler(4, 10.0),
-        max_trace_depth: 10,
+        pixel_sampler: Sampler::regular_sampler(8, 10.0),
+        max_trace_depth: 20,
     };
 
     let mut tracer = Tracer::new(&trace_config);
@@ -29,22 +29,22 @@ fn main() {
         Sphere {
             center: Vector3::new(2.0, 1.0, 0.0),
             radius: 1.0,
-            material: Rc::new(Metal::new(&Sampler::jittered_sampler(4, 100.0), &Color { r: 0.8, g: 0.8, b: 0.8, a: 1.0 })),
+            material: Rc::new(Metal::new(&Sampler::jittered_sampler(8, 10.0), &Color { r: 0.8, g: 0.8, b: 0.8, a: 1.0 })),
         },
         Sphere {
             center: Vector3::new(-2.0, 1.0, 0.0),
             radius: 1.0,
-            material: Rc::new(Metal::new(&Sampler::jittered_sampler(4, 100.0), &Color { r: 0.8, g: 0.6, b: 0.2, a: 1.0 })),
+            material: Rc::new(Metal::new(&Sampler::jittered_sampler(8, 10.0), &Color { r: 0.8, g: 0.6, b: 0.2, a: 1.0 })),
         },
         Sphere {
             center: Vector3::new(0.0, 1.0, 0.0),
             radius: 1.0,
-            material: Rc::new(Lambertian::new(&Sampler::jittered_sampler(4, 100.0), &Color { r: 0.8, g: 0.3, b: 0.3, a: 1.0 })),
+            material: Rc::new(Lambertian::new(&Sampler::jittered_sampler(8, 10.0), &Color { r: 0.8, g: 0.3, b: 0.3, a: 1.0 })),
         },
         Sphere {
             center: Vector3::new(0.0, -100.0, 0.0),
             radius: 100.0,
-            material: Rc::new(Lambertian::new(&Sampler::jittered_sampler(4, 100.0), &Color { r: 0.8, g: 1.0, b: 0.0, a: 1.0 })),
+            material: Rc::new(Lambertian::new(&Sampler::jittered_sampler(8, 10.0), &Color { r: 0.8, g: 1.0, b: 0.0, a: 1.0 })),
         }
     ];
 
