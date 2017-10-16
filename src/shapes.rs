@@ -65,6 +65,31 @@ impl Hitable for Sphere {
     }
 }
 
+#[derive(Clone)]
+pub struct Plane {
+    pub point: Vector3,
+    pub normal: Vector3,
+    pub material: Rc<Material>
+}
+
+impl Hitable for Plane {
+
+    fn intersect(self: &Plane, ray: &Ray3) -> Option<Intersection> {
+        let t = (self.point - ray.origin).dot(&self.normal) / ray.direction.dot(&self.normal);
+        if t > 0.0001 {
+            Some(Intersection {
+                ray: *ray,
+                t: t,
+                point: ray.point_at(t),
+                normal: self.normal,
+                material: self.material.clone(),
+            })
+        } else {
+            None
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

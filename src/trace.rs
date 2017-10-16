@@ -41,7 +41,7 @@ impl Tracer {
         self.image_buffer.write_to_file(path)
     }
 
-    pub fn trace(&mut self, camera: &Camera, objects: &Vec<&Hitable>) {
+    pub fn trace(&mut self, camera: &Camera, objects: &Vec<Box<Hitable>>) {
         for y in 0..self.image_height {
             for x in 0..self.image_width {
                 let mut color = Color::black();
@@ -61,7 +61,7 @@ impl Tracer {
         }
     }
 
-    fn trace_ray(&self, ray: &Ray3, objects: &Vec<&Hitable>, depth: u32) -> Color {
+    fn trace_ray(&self, ray: &Ray3, objects: &Vec<Box<Hitable>>, depth: u32) -> Color {
         let have_hit = objects.into_iter()
             .filter_map(|o| o.intersect(&ray))
             .min_by(|a: &Intersection, b: &Intersection| a.t.partial_cmp(&b.t).unwrap());

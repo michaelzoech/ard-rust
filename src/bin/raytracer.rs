@@ -25,34 +25,32 @@ fn main() {
 
     let camera = OrthographicCamera::new(&Vector3::new(0.0, 2.0, 4.5), &Vector3::new(0.0, 1.2, 0.0), &Vector3::new(0.0, 1.0, 0.0));
 
-    let objects = [
-        Sphere {
+    let objects: Vec<Box<Hitable>> = vec![
+        Box::new(Sphere {
             center: Vector3::new(2.0, 1.0, 0.0),
             radius: 1.0,
             material: Rc::new(Metal::new(&Sampler::jittered_sampler(8, 10.0), &Color { r: 0.8, g: 0.8, b: 0.8, a: 1.0 })),
-        },
-        Sphere {
+        }),
+        Box::new(Sphere {
             center: Vector3::new(-2.0, 1.0, 0.0),
             radius: 1.0,
             material: Rc::new(Metal::new(&Sampler::jittered_sampler(8, 10.0), &Color { r: 0.8, g: 0.6, b: 0.2, a: 1.0 })),
-        },
-        Sphere {
+        }),
+        Box::new(Sphere {
             center: Vector3::new(0.0, 1.0, 0.0),
             radius: 1.0,
             material: Rc::new(Lambertian::new(&Sampler::jittered_sampler(8, 10.0), &Color { r: 0.8, g: 0.3, b: 0.3, a: 1.0 })),
-        },
-        Sphere {
+        }),
+        Box::new(Sphere {
             center: Vector3::new(0.0, -100.0, 0.0),
             radius: 100.0,
             material: Rc::new(Lambertian::new(&Sampler::jittered_sampler(8, 10.0), &Color { r: 0.8, g: 1.0, b: 0.0, a: 1.0 })),
-        }
+        }),
     ];
-
-    let objects_vector = objects.iter().map(|s| s as &Hitable).collect();
 
     let start_time = Instant::now();
 
-    tracer.trace(&camera, &objects_vector);
+    tracer.trace(&camera, &objects);
 
     let elapsed = start_time.elapsed().as_secs();
 
