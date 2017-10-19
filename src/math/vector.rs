@@ -10,6 +10,67 @@ use std::ops::SubAssign;
 use super::*;
 
 #[derive(Clone, Copy, Debug, Default)]
+pub struct Vector2 {
+    pub x: f64,
+    pub y: f64,
+}
+
+impl Add for Vector2 {
+    type Output = Vector2;
+
+    fn add(self, rhs: Vector2) -> Vector2 {
+        Vector2 {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+
+impl Mul<f64> for Vector2 {
+    type Output = Vector2;
+
+    fn mul(self, rhs: f64) -> Vector2 {
+        Vector2 {
+            x: self.x * rhs,
+            y: self.y * rhs,
+        }
+    }
+}
+
+impl Mul<Vector2> for f64 {
+    type Output = Vector2;
+
+    fn mul(self, rhs: Vector2) -> Vector2 {
+        Vector2 {
+            x: self * rhs.x,
+            y: self * rhs.y,
+        }
+    }
+}
+
+
+impl Sub for Vector2 {
+    type Output = Vector2;
+
+    fn sub(self, rhs: Vector2) -> Vector2 {
+        Vector2 {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+impl Vector2 {
+
+    pub fn new(x: f64, y: f64) -> Vector2 {
+        Vector2 {
+            x: x,
+            y: y,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Vector3 {
     pub x: f64,
     pub y: f64,

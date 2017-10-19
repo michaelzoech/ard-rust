@@ -4,7 +4,7 @@ use rand::{self, Rng};
 use {RenderBuffer, TraceContext};
 use camera::Camera;
 use color::Color;
-use math::Ray3;
+use math::{Ray3, Vector2};
 use sampler::Sampler;
 use shapes::{Hitable, Intersection};
 
@@ -43,22 +43,23 @@ impl Tracer {
     }
 
     pub fn trace(&mut self, camera: &Camera, objects: &Vec<Box<Hitable>>) {
+        let image_dim = Vector2::new(self.image_width as f64, self.image_height as f64);
+        let half = Vector2::new(0.5, 0.5);
         let mut rng = rand::thread_rng();
 
         for y in 0..self.image_height {
             for x in 0..self.image_width {
                 let mut color = Color::black();
-
                 let num_samples = self.pixel_sampler.unit_square_samples.len() as u32;
                 let sample_offset = rng.gen_range(0, num_samples);
+                let pixel_corner = self.pixel_size * (Vector2 { x: x as f64, y: y as f64} - 0.5 * image_dim - half);
 
-                for (idx, &(sx, sy)) in self.pixel_sampler.unit_square_samples.iter().enumerate() {
+                for (idx, &sample) in self.pixel_sampler.unit_square_samples.iter().enumerate() {
                     let trace_context = TraceContext {
                         sample_index: (sample_offset + idx as u32) % num_samples,
                     };
-                    let dx = self.pixel_size * ((x as f64) - 0.5 * (self.image_width as f64) + (sx - 0.5));
-                    let dy = - self.pixel_size * ((y as f64) - 0.5 * (self.image_height as f64) + (sy - 0.5));
-                    let ray = camera.generate_ray(dx, dy);
+                    let sampled_pixel_pos = pixel_corner + self.pixel_size * sample;
+                    let ray = camera.generate_ray(sampled_pixel_pos.x, -sampled_pixel_pos.y);
 
                     color += self.trace_ray(&trace_context, &ray, &objects, 0);
                 }

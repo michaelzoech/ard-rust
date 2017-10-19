@@ -5,10 +5,9 @@ use ard::color::Color;
 use ard::sampler::Sampler;
 
 fn render_sampler(render_buffer: &mut RenderBuffer, offset_x: u32, offset_y: u32, dim: f64, sampler: &Sampler) {
-    for &(dx, dy) in sampler.unit_square_samples.iter() {
-        let x = (dim * dx) as u32;
-        let y = (dim * dy) as u32;
-        render_buffer.set_pixel(offset_x + x, offset_y + y, Color { r: 1.0, g: 1.0, b: 1.0, a: 1.0});
+    for &sample in sampler.unit_square_samples.iter() {
+        let v = dim * sample;
+        render_buffer.set_pixel(offset_x + v.x as u32, offset_y + v.y as u32, Color { r: 1.0, g: 1.0, b: 1.0, a: 1.0});
     }
 
     for &vec in sampler.hemisphere_samples.iter() {

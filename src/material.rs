@@ -17,7 +17,7 @@ pub struct Lambertian {
 
 impl Material for Lambertian {
 
-    fn scatter(&self, trace_context: &TraceContext, ray: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool {
+    fn scatter(&self, trace_context: &TraceContext, _: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool {
         let w = intersection.normal;
         let v = (w.cross(&Vector3::new(0.0072, 1.0, 0.0034))).normalized();
         let u = v.cross(&w);
@@ -57,7 +57,7 @@ pub struct Metal {
 
 impl Material for Metal {
 
-    fn scatter(&self, trace_context: &TraceContext, ray: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool {
+    fn scatter(&self, _: &TraceContext, ray: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool {
         let reflected = ray.direction.reflect(&intersection.normal);
 
         scattered.origin = intersection.point;
