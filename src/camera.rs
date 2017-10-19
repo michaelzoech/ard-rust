@@ -36,6 +36,33 @@ impl OrthographicCamera {
     }
 }
 
+pub struct PinholeCamera {
+    eye: Vector3,
+    distance: f64,
+    uvw: (Vector3, Vector3, Vector3),
+}
+
+impl Camera for PinholeCamera {
+
+    fn generate_ray(&self, dx: f64, dy: f64) -> Ray3 {
+        Ray3 {
+            origin: self.eye,
+            direction: (self.uvw.0 * dx + self.uvw.1 * dy - self.uvw.2 * self.distance).normalized(),
+        }
+    }
+}
+
+impl PinholeCamera {
+
+    pub fn new(eye: &Vector3, lookat: &Vector3, up: &Vector3, distance: f64) -> PinholeCamera {
+        PinholeCamera {
+            eye: *eye,
+            distance: distance,
+            uvw: calculate_uvw(eye, lookat, up),
+        }
+    }
+}
+
 fn calculate_uvw(eye: &Vector3, lookat: &Vector3, up: &Vector3) -> (Vector3, Vector3, Vector3) {
     let w = (*eye - *lookat).normalized();
     let u = (up.cross(&w)).normalized();

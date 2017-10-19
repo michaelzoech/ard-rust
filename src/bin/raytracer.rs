@@ -23,7 +23,8 @@ fn main() {
 
     let mut tracer = Tracer::new(&trace_config);
 
-    let camera = OrthographicCamera::new(&Vector3::new(0.0, 2.0, 4.5), &Vector3::new(0.0, 1.2, 0.0), &Vector3::new(0.0, 1.0, 0.0));
+    //let camera = OrthographicCamera::new(&Vector3::new(0.0, 2.0, 4.5), &Vector3::new(0.0, 1.2, 0.0), &Vector3::new(0.0, 1.0, 0.0));
+    let camera = PinholeCamera::new(&Vector3::new(0.0, 2.0, 4.5), &Vector3::new(0.0, 1.2, 0.0), &Vector3::new(0.0, 1.0, 0.0), 4.0);
 
     let objects: Vec<Box<Hitable>> = vec![
         Box::new(Sphere {
@@ -39,7 +40,7 @@ fn main() {
         Box::new(Sphere {
             center: Vector3::new(0.0, 1.0, 0.0),
             radius: 1.0,
-            material: Rc::new(Lambertian::new(&Sampler::jittered_sampler(8, 10.0), &Color { r: 0.8, g: 0.3, b: 0.3, a: 1.0 })),
+            material: Rc::new(Lambertian::new(&Sampler::jittered_sampler(8, 10.0), &Color { r: 1.0, g: 0.3, b: 1.0, a: 1.0 })),
         }),
         Box::new(Sphere {
             center: Vector3::new(0.0, -100.0, 0.0),
