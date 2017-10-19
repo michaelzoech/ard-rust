@@ -15,6 +15,11 @@ pub mod trace;
 use self::color::Color;
 use self::io::OutputStream;
 
+#[derive(Clone, Debug)]
+pub struct TraceContext {
+    pub sample_index: u32,
+}
+
 /// A 2-dimensional pixel buffer.
 /// The x coordinate goes from 0 to width (exclusive), from left to right.
 /// The y coordinate goes from 0 to height (exclusive), from top to bottom.

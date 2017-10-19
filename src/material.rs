@@ -1,12 +1,12 @@
+use {TraceContext};
 use color::{Color};
 use math::{Ray3, Vector3};
 use sampler::{Sampler};
 use shapes::Intersection;
-use rand::{self, Rng};
 
 pub trait Material {
 
-    fn scatter(&self, ray: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool;
+    fn scatter(&self, trace_context: &TraceContext, ray: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool;
 }
 
 #[derive(Clone, Debug)]
@@ -17,14 +17,12 @@ pub struct Lambertian {
 
 impl Material for Lambertian {
 
-    fn scatter(&self, ray: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool {
+    fn scatter(&self, trace_context: &TraceContext, ray: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool {
         let w = intersection.normal;
         let v = (w.cross(&Vector3::new(0.0072, 1.0, 0.0034))).normalized();
         let u = v.cross(&w);
-        let mut rng = rand::thread_rng();
 
-        let idx =rng.gen_range(0, self.samples.hemisphere_samples.len());
-        let sample = self.samples.hemisphere_samples[idx];
+        let sample = self.samples.hemisphere_samples[trace_context.sample_index as usize];
 
         let target = u * sample.x + v * sample.y + w * sample.z;
 
@@ -59,7 +57,7 @@ pub struct Metal {
 
 impl Material for Metal {
 
-    fn scatter(&self, ray: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool {
+    fn scatter(&self, trace_context: &TraceContext, ray: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool {
         let reflected = ray.direction.reflect(&intersection.normal);
 
         scattered.origin = intersection.point;
