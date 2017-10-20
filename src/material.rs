@@ -10,6 +10,23 @@ pub trait Material {
 }
 
 #[derive(Clone, Debug)]
+pub struct NullMaterial {
+}
+
+impl Material for NullMaterial {
+    fn scatter(&self, _: &TraceContext, _: &Ray3, _: &Intersection, _: &mut Color, _: &mut Ray3) -> bool {
+        false
+    }
+}
+
+impl NullMaterial {
+    pub fn new() -> NullMaterial {
+        NullMaterial {
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct Lambertian {
     samples: Sampler,
     albedo: Color,

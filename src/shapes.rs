@@ -93,12 +93,14 @@ impl Hitable for Plane {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use material::NullMaterial;
 
     #[test]
     fn intersect() {
         let sphere = Sphere {
             center: Vector3 { x: 2.0, y: 0.0, z: 0.0 },
             radius: 1.0,
+            material: Rc::new(NullMaterial::new()),
         };
         let ray = Ray3 {
             origin: Vector3::zero(),
