@@ -27,6 +27,29 @@ impl NullMaterial {
 }
 
 #[derive(Clone, Debug)]
+pub struct NormalMaterial {
+}
+
+impl Material for NormalMaterial {
+    fn scatter(&self, _: &TraceContext, _: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool {
+        scattered.origin = intersection.point + intersection.normal * 0.01;
+        scattered.direction = intersection.normal;
+        let unit = 0.5 * (intersection.normal + Vector3::new(1.0, 1.0, 1.0));
+        attenuation.r = unit.x;
+        attenuation.g = unit.y;
+        attenuation.b = unit.z;
+        true
+    }
+}
+
+impl NormalMaterial {
+    pub fn new() -> NormalMaterial {
+        NormalMaterial {
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct Lambertian {
     samples: Sampler,
     albedo: Color,
