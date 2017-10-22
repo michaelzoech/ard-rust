@@ -14,6 +14,7 @@ pub struct TraceConfig {
     pub pixel_size: f64,
     pub pixel_sampler: Sampler,
     pub max_trace_depth: u32,
+    pub ambient_color: Color,
 }
 
 pub struct Tracer {
@@ -22,6 +23,7 @@ pub struct Tracer {
     pixel_size: f64,
     pixel_sampler: Sampler,
     max_trace_depth: u32,
+    ambient_color: Color,
     image_buffer: RenderBuffer,
 }
 
@@ -34,6 +36,7 @@ impl Tracer {
             pixel_size: config.pixel_size,
             pixel_sampler: config.pixel_sampler.clone(),
             max_trace_depth: config.max_trace_depth,
+            ambient_color: config.ambient_color,
             image_buffer: RenderBuffer::new(config.image_width, config.image_height),
         }
     }
@@ -85,8 +88,7 @@ impl Tracer {
                 return Color::black();
             }
         } else {
-            let t = 0.5 * (ray.direction.y + 1.0);
-            return Color::white() * (1.0-t) + Color {r: 0.5, g: 0.7, b: 1.0, a: 0.0} * t;
+            self.ambient_color
         }
     }
 }

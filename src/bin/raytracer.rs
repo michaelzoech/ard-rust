@@ -19,6 +19,7 @@ fn main() {
         pixel_size: 0.01,
         pixel_sampler: Sampler::regular_sampler(8, 0.0),
         max_trace_depth: 10,
+        ambient_color: Color { r: 0.6, g: 0.8, b: 1.0, a: 1.0 },
     };
 
     let mut tracer = Tracer::new(&trace_config);
