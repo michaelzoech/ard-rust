@@ -2,15 +2,17 @@ extern crate ard;
 
 use ard::RenderBuffer;
 use ard::color::Color;
-use ard::sampler::Sampler;
+use ard::sampler::*;
 
-fn render_sampler(render_buffer: &mut RenderBuffer, offset_x: u32, offset_y: u32, dim: f64, sampler: &Sampler) {
-    for &sample in sampler.unit_square_samples.iter() {
+fn render_unit_square_sampler(render_buffer: &mut RenderBuffer, offset_x: u32, offset_y: u32, dim: f64, sampler: &UnitSquareSampler) {
+    for &sample in sampler.samples.iter() {
         let v = dim * sample;
         render_buffer.set_pixel(offset_x + v.x as u32, offset_y + v.y as u32, Color { r: 1.0, g: 1.0, b: 1.0, a: 1.0});
     }
+}
 
-    for &vec in sampler.hemisphere_samples.iter() {
+fn render_hemi_sphere_sampler(render_buffer: &mut RenderBuffer, offset_x: u32, offset_y: u32, dim: f64, sampler: &HemiSphereSampler) {
+    for &vec in sampler.samples.iter() {
         let x = (dim * (vec.x + 1.0) * 0.5) as u32;
         let y = (dim * (vec.y + 1.0) * 0.5) as u32;
         let z = (dim * (vec.z + 1.0) * 0.5) as u32;
@@ -19,6 +21,7 @@ fn render_sampler(render_buffer: &mut RenderBuffer, offset_x: u32, offset_y: u32
         render_buffer.set_pixel(offset_x + x, offset_y + z, Color { r: 0.0, g: 1.0, b: 0.0, a: 1.0});
     }
 }
+
 
 fn draw_line(render_buffer: &mut RenderBuffer, start_x: u32, start_y: u32, end_x: u32, end_y: u32) {
     let x0 = start_x as i32;
@@ -71,8 +74,10 @@ fn main() {
 
     for x in 0..num_boxes {
         let e = 10.0f64.powf(x as f64);
-        render_sampler(&mut render_buffer, box_size * x, box_size * 0, box_dim, &Sampler::regular_sampler(8, e));
-        render_sampler(&mut render_buffer, box_size * x, box_size * 1, box_dim, &Sampler::jittered_sampler(8, e));
+        render_unit_square_sampler(&mut render_buffer, box_size * x, box_size * 0, box_dim, &UnitSquareSampler::regular_sampler(8));
+        render_hemi_sphere_sampler(&mut render_buffer, box_size * x, box_size * 0, box_dim, &HemiSphereSampler::regular_sampler(8, e));
+        render_unit_square_sampler(&mut render_buffer, box_size * x, box_size * 1, box_dim, &UnitSquareSampler::jittered_sampler(8));
+        render_hemi_sphere_sampler(&mut render_buffer, box_size * x, box_size * 1, box_dim, &HemiSphereSampler::jittered_sampler(8, e));
     }
 
     render_buffer.write_to_file("samplers.bmp").expect("Cannot write bitmap");

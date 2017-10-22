@@ -5,14 +5,14 @@ use {RenderBuffer, TraceContext};
 use camera::Camera;
 use color::Color;
 use math::{Ray3, Vector2};
-use sampler::Sampler;
+use sampler::UnitSquareSampler;
 use shapes::{Hitable, Intersection};
 
 pub struct TraceConfig {
     pub image_width: u32,
     pub image_height: u32,
     pub pixel_size: f64,
-    pub pixel_sampler: Sampler,
+    pub pixel_sampler: UnitSquareSampler,
     pub max_trace_depth: u32,
     pub ambient_color: Color,
 }
@@ -21,7 +21,7 @@ pub struct Tracer {
     image_width: u32,
     image_height: u32,
     pixel_size: f64,
-    pixel_sampler: Sampler,
+    pixel_sampler: UnitSquareSampler,
     max_trace_depth: u32,
     ambient_color: Color,
     image_buffer: RenderBuffer,
@@ -53,11 +53,11 @@ impl Tracer {
         for y in 0..self.image_height {
             for x in 0..self.image_width {
                 let mut color = Color::black();
-                let num_samples = self.pixel_sampler.unit_square_samples.len() as u32;
+                let num_samples = self.pixel_sampler.samples.len() as u32;
                 let sample_offset = rng.gen_range(0, num_samples);
                 let pixel_corner = self.pixel_size * (Vector2 { x: x as f64, y: y as f64} - 0.5 * image_dim - half);
 
-                for (idx, &sample) in self.pixel_sampler.unit_square_samples.iter().enumerate() {
+                for (idx, &sample) in self.pixel_sampler.samples.iter().enumerate() {
                     let trace_context = TraceContext {
                         sample_index: (sample_offset + idx as u32) % num_samples,
                     };
@@ -67,7 +67,7 @@ impl Tracer {
                     color += self.trace_ray(&trace_context, &ray, &objects, 0);
                 }
 
-                color /= self.pixel_sampler.unit_square_samples.len() as f64;
+                color /= self.pixel_sampler.samples.len() as f64;
 
                 self.image_buffer.set_pixel(x, y, color);
             }
