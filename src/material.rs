@@ -1,7 +1,7 @@
 use {TraceContext};
 use color::{Color};
 use math::{Ray3, Vector3};
-use sampler::{HemiSphereSampler, UnitSphereSampler};
+use sampler::{HemiSphereSampler, Sampler, UnitSphereSampler};
 use shapes::Intersection;
 
 pub trait Material {
@@ -62,8 +62,7 @@ impl Material for Lambertian {
         let v = (w.cross(&Vector3::new(0.0072, 1.0, 0.0034))).normalized();
         let u = v.cross(&w);
 
-        let sample_index = (trace_context.sample_index as usize) % self.samples.samples.len();
-        let sample = self.samples.samples[sample_index];
+        let sample = self.samples.sample(trace_context.set_index, trace_context.sample_index);
 
         let target = u * sample.x + v * sample.y + w * sample.z;
 
@@ -100,8 +99,7 @@ pub struct Metal {
 impl Material for Metal {
 
     fn scatter(&self, trace_context: &TraceContext, ray: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool {
-        let sample_index = (trace_context.sample_index as usize) % self.samples.samples.len();
-        let sample = self.samples.samples[sample_index];
+        let sample = self.samples.sample(trace_context.set_index, trace_context.sample_index);
         let reflected = (ray.direction.reflect(&intersection.normal) + sample * self.fuzziness).normalized();
 
         scattered.origin = intersection.point;

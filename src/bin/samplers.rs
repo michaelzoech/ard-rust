@@ -5,14 +5,14 @@ use ard::color::Color;
 use ard::sampler::*;
 
 fn render_unit_square_sampler(render_buffer: &mut RenderBuffer, offset_x: u32, offset_y: u32, dim: f64, sampler: &UnitSquareSampler) {
-    for &sample in sampler.samples.iter() {
+    for &sample in sampler.samples[0].iter() {
         let v = dim * sample;
         render_buffer.set_pixel(offset_x + v.x as u32, offset_y + v.y as u32, Color { r: 1.0, g: 1.0, b: 1.0, a: 1.0});
     }
 }
 
 fn render_hemi_sphere_sampler(render_buffer: &mut RenderBuffer, offset_x: u32, offset_y: u32, dim: f64, sampler: &HemiSphereSampler) {
-    for &vec in sampler.samples.iter() {
+    for &vec in sampler.samples[0].iter() {
         let x = (dim * (vec.x + 1.0) * 0.5) as u32;
         let y = (dim * (vec.y + 1.0) * 0.5) as u32;
         let z = (dim * (vec.z + 1.0) * 0.5) as u32;

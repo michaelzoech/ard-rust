@@ -17,7 +17,8 @@ use self::io::OutputStream;
 
 #[derive(Clone, Debug)]
 pub struct TraceContext {
-    pub sample_index: u32,
+    pub set_index: usize,
+    pub sample_index: usize,
 }
 
 /// A 2-dimensional pixel buffer.
