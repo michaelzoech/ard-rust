@@ -1,3 +1,7 @@
+#![feature(integer_atomics)]
+
+extern crate integer_atomics;
+extern crate num_cpus;
 extern crate rand;
 
 #[macro_use]
@@ -24,6 +28,7 @@ pub struct TraceContext {
 /// A 2-dimensional pixel buffer.
 /// The x coordinate goes from 0 to width (exclusive), from left to right.
 /// The y coordinate goes from 0 to height (exclusive), from top to bottom.
+#[derive(Clone, Debug)]
 pub struct RenderBuffer {
     width: u32,
     height: u32,
@@ -47,11 +52,18 @@ impl RenderBuffer {
     }
 
     pub fn set_pixel(&mut self, x: u32, y: u32, color: Color) {
-        expect_le!(x, self.width);
-        expect_le!(y, self.height);
+        expect_lt!(x, self.width);
+        expect_lt!(y, self.height);
 
         let pos = (y * self.width + x) as usize;
         self.pixels[pos] = color;
+    }
+
+    pub fn set_pixel_line(&mut self, y: u32, pixels: &Vec<Color>) {
+        expect_lt!(y, self.height);
+        expect_eq!(pixels.len(), self.width as usize);
+        let pos = (y * self.width) as usize;
+        self.pixels[pos..(pos + self.width as usize)].clone_from_slice(pixels);
     }
 
     pub fn write_to_file<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<()> {

@@ -1,5 +1,5 @@
 use std::option::Option;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use material::Material;
 use math::{Ray3, Vector3};
@@ -10,10 +10,10 @@ pub struct Intersection {
     pub t: f64,
     pub point: Vector3,
     pub normal: Vector3,
-    pub material: Rc<Material>,
+    pub material: Arc<Material>,
 }
 
-pub trait Hitable {
+pub trait Hitable : Send + Sync {
 
     fn intersect(&self, ray: &Ray3) -> Option<Intersection>;
 }
@@ -22,7 +22,7 @@ pub trait Hitable {
 pub struct Sphere {
     pub center: Vector3,
     pub radius: f64,
-    pub material: Rc<Material>,
+    pub material: Arc<Material>,
 }
 
 impl Hitable for Sphere {
@@ -69,7 +69,7 @@ impl Hitable for Sphere {
 pub struct Plane {
     pub point: Vector3,
     pub normal: Vector3,
-    pub material: Rc<Material>
+    pub material: Arc<Material>
 }
 
 impl Hitable for Plane {
@@ -100,7 +100,7 @@ mod tests {
         let sphere = Sphere {
             center: Vector3 { x: 2.0, y: 0.0, z: 0.0 },
             radius: 1.0,
-            material: Rc::new(NullMaterial::new()),
+            material: Arc::new(NullMaterial::new()),
         };
         let ray = Ray3 {
             origin: Vector3::zero(),

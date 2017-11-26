@@ -35,7 +35,7 @@ macro_rules! expect_neq {
     })
 }
 
-macro_rules! expect_le {
+macro_rules! expect_lt {
     ($left:expr, $right:expr) => ({
         match (&$left, &$right) {
             (left_val, right_val) => {

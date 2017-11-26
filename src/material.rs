@@ -4,7 +4,7 @@ use math::{Ray3, Vector3};
 use sampler::{HemiSphereSampler, Sampler, UnitSphereSampler};
 use shapes::Intersection;
 
-pub trait Material {
+pub trait Material : Send + Sync {
 
     fn scatter(&self, trace_context: &TraceContext, ray: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool;
 }

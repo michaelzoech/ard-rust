@@ -1,7 +1,7 @@
 
 use math::*;
 
-pub trait Camera {
+pub trait Camera : Send + Sync {
 
     fn generate_ray(&self, dx: f64, dy: f64) -> Ray3;
 }
@@ -36,6 +36,7 @@ impl OrthographicCamera {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct PinholeCamera {
     eye: Vector3,
     distance: f64,
