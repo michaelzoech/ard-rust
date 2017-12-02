@@ -34,7 +34,7 @@ impl Material for NormalMaterial {
     fn scatter(&self, _: &TraceContext, _: &Ray3, intersection: &Intersection, attenuation: &mut Color, scattered: &mut Ray3) -> bool {
         scattered.origin = intersection.point + intersection.normal * 0.01;
         scattered.direction = intersection.normal;
-        let unit = 0.5 * (intersection.normal + Vector3::new(1.0, 1.0, 1.0));
+        let unit = Vector3::new(intersection.normal.x.abs(), intersection.normal.y.abs(), intersection.normal.z.abs());
         attenuation.r = unit.x;
         attenuation.g = unit.y;
         attenuation.b = unit.z;
