@@ -5,14 +5,14 @@
             "type": "gdb",
             "request": "launch",
             "name": "Debug",
-            "target": "${workspaceRoot}/target/debug/ard",
+            "target": "${workspaceRoot}/target/debug/raytracer",
             "cwd": "${workspaceRoot}"
         },
         {
             "type": "lldb",
             "request": "launch",
             "name": "Debug",
-            "program": "${workspaceRoot}/target/debug/ard",
+            "program": "${workspaceRoot}/target/debug/raytracer",
             "cwd": "${workspaceRoot}"
         }
     ]

@@ -1,6 +1,8 @@
+mod matrix;
 mod ray;
 mod vector;
 
+pub use self::matrix::*;
 pub use self::ray::*;
 pub use self::vector::*;
 

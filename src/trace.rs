@@ -150,10 +150,10 @@ impl Tracer {
         if let Some(intersection) = have_hit {
             let mut scattered = Ray3::default();
             let mut attenuation = Color::black();
-            if depth < self.max_trace_depth && (*intersection.material).scatter(trace_context, ray, &intersection, &mut attenuation, &mut scattered) {
+            if (*intersection.material).scatter(trace_context, ray, &intersection, &mut attenuation, &mut scattered) && depth < self.max_trace_depth {
                 return self.trace_ray(trace_context, &scattered, objects, depth + 1) * attenuation;
             } else {
-                return Color::black();
+                return attenuation;
             }
         } else {
             self.ambient_color
