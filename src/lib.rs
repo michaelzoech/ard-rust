@@ -1,4 +1,4 @@
-#![feature(integer_atomics)]
+//#![feature(integer_atomics)]
 
 extern crate integer_atomics;
 extern crate num_cpus;
@@ -36,13 +36,20 @@ pub struct RenderBuffer {
 }
 
 impl RenderBuffer {
-
     pub fn new(width: u32, height: u32) -> RenderBuffer {
         expect_neq!(width, 0);
         expect_neq!(height, 0);
 
         let mut pixels = Vec::new();
-        pixels.resize((width * height) as usize, Color { r: 0.0, g: 0.0, b: 0.0, a: 0.0 });
+        pixels.resize(
+            (width * height) as usize,
+            Color {
+                r: 0.0,
+                g: 0.0,
+                b: 0.0,
+                a: 0.0,
+            },
+        );
 
         RenderBuffer {
             width: width,
@@ -69,7 +76,7 @@ impl RenderBuffer {
     pub fn write_to_file<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<()> {
         let mut out = OutputStream::new(path)?;
 
-        let row_padding = ((4 - self.width % 4)) % 4;
+        let row_padding = (4 - self.width % 4) % 4;
         let header_size = 14 + 40;
         let image_size = (self.width * 3 + row_padding) * self.height;
         let file_size = header_size + image_size;
@@ -101,7 +108,11 @@ impl RenderBuffer {
             let mut index = ((self.height - y - 1) * self.width) as usize;
             for _ in 0..self.width {
                 let rgb = self.pixels[index].to_rgba32();
-                out.write(&[((rgb>>16)&0xff) as u8, ((rgb>>8)&0xff) as u8, (rgb&0xff) as u8])?;
+                out.write(&[
+                    ((rgb >> 16) & 0xff) as u8,
+                    ((rgb >> 8) & 0xff) as u8,
+                    (rgb & 0xff) as u8,
+                ])?;
                 index += 1;
             }
             out.write(padding.as_slice())?;

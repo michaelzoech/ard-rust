@@ -1,5 +1,5 @@
 
-use math::*;
+use crate::math::*;
 
 pub trait Camera : Send + Sync {
 

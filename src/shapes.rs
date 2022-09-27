@@ -3,8 +3,8 @@ use std::mem;
 use std::option::Option;
 use std::sync::Arc;
 
-use material::Material;
-use math::{Matrix4, Ray3, Vector3};
+use crate::material::Material;
+use crate::math::{Matrix4, Ray3, Vector3};
 
 #[derive(Clone)]
 pub struct Intersection {
@@ -12,11 +12,10 @@ pub struct Intersection {
     pub t: f64,
     pub point: Vector3,
     pub normal: Vector3,
-    pub material: Arc<Material>,
+    pub material: Arc<dyn Material>,
 }
 
-pub trait Hitable : Send + Sync {
-
+pub trait Hitable: Send + Sync {
     fn intersect(&self, ray: &Ray3) -> Option<Intersection>;
 }
 
@@ -26,13 +25,12 @@ pub struct Cube {
     u: Vector3,
     v: Vector3,
     w: Vector3,
-    material: Arc<Material>,
+    material: Arc<dyn Material>,
 }
 
 impl Hitable for Cube {
-
     fn intersect(&self, ray: &Ray3) -> Option<Intersection> {
-        if let Some((t,normal)) = self.intersection_with_normal(ray) {
+        if let Some((t, normal)) = self.intersection_with_normal(ray) {
             Some(Intersection {
                 ray: *ray,
                 t: t,
@@ -47,9 +45,15 @@ impl Hitable for Cube {
 }
 
 impl Cube {
-
-    pub fn new(center: Vector3, size: Vector3, rotation: Vector3, material: Arc<Material>) -> Cube {
-        let m = Matrix4::rotation_x(rotation.x) * Matrix4::rotation_y(rotation.y) * Matrix4::rotation_z(rotation.z);
+    pub fn new(
+        center: Vector3,
+        size: Vector3,
+        rotation: Vector3,
+        material: Arc<dyn Material>,
+    ) -> Cube {
+        let m = Matrix4::rotation_x(rotation.x)
+            * Matrix4::rotation_y(rotation.y)
+            * Matrix4::rotation_z(rotation.z);
         Cube {
             center: center,
             u: m.transform_vector3(Vector3::new(size.x * 0.5, 0.0, 0.0)),
@@ -79,8 +83,14 @@ impl Cube {
                     if t1 > t2 {
                         mem::swap(&mut t1, &mut t2);
                     }
-                    if t1 > tmin { tmin = t1; vmin = n; }
-                    if t2 < tmax { tmax = t2; vmax = n; }
+                    if t1 > tmin {
+                        tmin = t1;
+                        vmin = n;
+                    }
+                    if t2 < tmax {
+                        tmax = t2;
+                        vmax = n;
+                    }
                     if tmin > tmax || tmax < 0.0 {
                         return false;
                     } else {
@@ -91,16 +101,32 @@ impl Cube {
                 }
             };
 
-            has_hit = hit(self.u, self.v.cross(&self.w)) && hit(self.v, self.w.cross(&self.u)) && hit(self.w, self.u.cross(&self.v));
+            has_hit = hit(self.u, self.v.cross(&self.w))
+                && hit(self.v, self.w.cross(&self.u))
+                && hit(self.w, self.u.cross(&self.v));
         }
 
         if has_hit {
             if tmin > 0.0 {
                 vmin.normalize();
-                Some((tmin, if ray.direction.dot(&vmin) > 0.0 { -vmin } else { vmin }))
+                Some((
+                    tmin,
+                    if ray.direction.dot(&vmin) > 0.0 {
+                        -vmin
+                    } else {
+                        vmin
+                    },
+                ))
             } else {
                 vmax.normalize();
-                Some((tmax, if ray.direction.dot(&vmax) > 0.0 { -vmax } else { vmax }))
+                Some((
+                    tmax,
+                    if ray.direction.dot(&vmax) > 0.0 {
+                        -vmax
+                    } else {
+                        vmax
+                    },
+                ))
             }
         } else {
             None
@@ -112,11 +138,10 @@ impl Cube {
 pub struct Sphere {
     pub center: Vector3,
     pub radius: f64,
-    pub material: Arc<Material>,
+    pub material: Arc<dyn Material>,
 }
 
 impl Hitable for Sphere {
-
     fn intersect(self: &Sphere, ray: &Ray3) -> Option<Intersection> {
         let v = ray.origin - self.center;
         let a = ray.direction.dot(&ray.direction);
@@ -159,11 +184,10 @@ impl Hitable for Sphere {
 pub struct Plane {
     pub point: Vector3,
     pub normal: Vector3,
-    pub material: Arc<Material>
+    pub material: Arc<dyn Material>,
 }
 
 impl Hitable for Plane {
-
     fn intersect(self: &Plane, ray: &Ray3) -> Option<Intersection> {
         let t = (self.point - ray.origin).dot(&self.normal) / ray.direction.dot(&self.normal);
         if t > 0.0001 {
@@ -183,20 +207,28 @@ impl Hitable for Plane {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use material::NullMaterial;
+    use crate::material::NullMaterial;
 
     #[test]
     fn intersect() {
         let sphere = Sphere {
-            center: Vector3 { x: 2.0, y: 0.0, z: 0.0 },
+            center: Vector3 {
+                x: 2.0,
+                y: 0.0,
+                z: 0.0,
+            },
             radius: 1.0,
             material: Arc::new(NullMaterial::new()),
         };
         let ray = Ray3 {
             origin: Vector3::zero(),
-            direction: Vector3 { x: 1.0, y: 0.0, z: 0.0 },
+            direction: Vector3 {
+                x: 1.0,
+                y: 0.0,
+                z: 0.0,
+            },
         };
-        let hit =  sphere.intersect(&ray);
+        let hit = sphere.intersect(&ray);
 
         if let None = hit {
             assert!(false);

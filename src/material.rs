@@ -1,8 +1,8 @@
-use {TraceContext};
-use color::{Color};
-use math::{Ray3, Vector3};
-use sampler::{HemiSphereSampler, Sampler, UnitSphereSampler};
-use shapes::Intersection;
+use crate::{TraceContext};
+use crate::color::{Color};
+use crate::math::{Ray3, Vector3};
+use crate::sampler::{HemiSphereSampler, Sampler, UnitSphereSampler};
+use crate::shapes::Intersection;
 
 pub trait Material : Send + Sync {
 

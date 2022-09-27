@@ -1,17 +1,17 @@
 use num_cpus;
+use rand::{self, Rng};
 use std;
 use std::option::Option;
-use std::sync::{Arc, Mutex};
 use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::{Arc, Mutex};
 use std::thread;
-use rand::{self, Rng};
 
-use {RenderBuffer, TraceContext};
-use camera::Camera;
-use color::Color;
-use math::{Ray3, Vector2};
-use sampler::UnitSquareSampler;
-use shapes::{Hitable, Intersection};
+use crate::camera::Camera;
+use crate::color::Color;
+use crate::math::{Ray3, Vector2};
+use crate::sampler::UnitSquareSampler;
+use crate::shapes::{Hitable, Intersection};
+use crate::{RenderBuffer, TraceContext};
 
 pub struct RendererConfig {
     pub image_width: u32,
@@ -36,7 +36,6 @@ pub struct Renderer {
 }
 
 impl Renderer {
-
     pub fn new(config: &RendererConfig) -> Renderer {
         Renderer {
             image_width: config.image_width,
@@ -45,8 +44,13 @@ impl Renderer {
             pixel_sampler: config.pixel_sampler.clone(),
             max_trace_depth: config.max_trace_depth,
             ambient_color: config.ambient_color,
-            num_render_threads: config.num_render_threads.unwrap_or_else(|| num_cpus::get() as u32),
-            image_buffer: Arc::new(Mutex::new(RenderBuffer::new(config.image_width, config.image_height))),
+            num_render_threads: config
+                .num_render_threads
+                .unwrap_or_else(|| num_cpus::get() as u32),
+            image_buffer: Arc::new(Mutex::new(RenderBuffer::new(
+                config.image_width,
+                config.image_height,
+            ))),
         }
     }
 
@@ -54,7 +58,7 @@ impl Renderer {
         self.image_buffer.lock().unwrap().write_to_file(path)
     }
 
-    pub fn render(&mut self, camera: &Arc<Camera>, objects: &Arc<Vec<Arc<Hitable>>>) {
+    pub fn render(&mut self, camera: &Arc<dyn Camera>, objects: &Arc<Vec<Arc<dyn Hitable>>>) {
         let mut handles = Vec::new();
         let next_line = Arc::new(AtomicU32::new(0));
         let tracer = Tracer {
@@ -72,16 +76,14 @@ impl Renderer {
             let camera = Arc::clone(camera);
             let objects = Arc::clone(objects);
             let tracer = tracer.clone();
-            let handle = thread::spawn(move || {
-                loop {
-                    let y = next_line.fetch_add(1, Ordering::Relaxed);
+            let handle = thread::spawn(move || loop {
+                let y = next_line.fetch_add(1, Ordering::Relaxed);
 
-                    if y >= tracer.image_height {
-                        break;
-                    }
-
-                    tracer.trace_line(&camera, &objects, y);
+                if y >= tracer.image_height {
+                    break;
                 }
+
+                tracer.trace_line(&camera, &objects, y);
             });
             handles.push(handle);
         }
@@ -104,8 +106,7 @@ struct Tracer {
 }
 
 impl Tracer {
-
-    fn trace_line(&self, camera: &Arc<Camera>, objects: &Arc<Vec<Arc<Hitable>>>, y: u32) {
+    fn trace_line(&self, camera: &Arc<dyn Camera>, objects: &Arc<Vec<Arc<dyn Hitable>>>, y: u32) {
         let image_dim = Vector2::new(self.image_width as f64, self.image_height as f64);
         let half = Vector2::new(0.5, 0.5);
         let num_pixel_sets = self.pixel_sampler.samples.len();
@@ -117,13 +118,21 @@ impl Tracer {
         for x in 0..self.image_width {
             let mut color = Color::black();
             let sample_offset: usize = rng.gen();
-            let pixel_corner = self.pixel_size * (Vector2 { x: x as f64, y: y as f64} - 0.5 * image_dim - half);
+            let pixel_corner = self.pixel_size
+                * (Vector2 {
+                    x: x as f64,
+                    y: y as f64,
+                } - 0.5 * image_dim
+                    - half);
 
             set_offset += 1;
 
             let pixel_set_index = set_offset % num_pixel_sets;
 
-            for (idx, &sample) in self.pixel_sampler.samples[pixel_set_index].iter().enumerate() {
+            for (idx, &sample) in self.pixel_sampler.samples[pixel_set_index]
+                .iter()
+                .enumerate()
+            {
                 let trace_context = TraceContext {
                     set_index: set_offset,
                     sample_index: sample_offset + idx,
@@ -142,15 +151,29 @@ impl Tracer {
         self.image_buffer.lock().unwrap().set_pixel_line(y, &out);
     }
 
-    fn trace_ray(&self, trace_context: &TraceContext, ray: &Ray3, objects: &Vec<Arc<Hitable>>, depth: u32) -> Color {
-        let have_hit = objects.into_iter()
+    fn trace_ray(
+        &self,
+        trace_context: &TraceContext,
+        ray: &Ray3,
+        objects: &Vec<Arc<dyn Hitable>>,
+        depth: u32,
+    ) -> Color {
+        let have_hit = objects
+            .into_iter()
             .filter_map(|o| (*o).intersect(&ray))
             .min_by(|a: &Intersection, b: &Intersection| a.t.partial_cmp(&b.t).unwrap());
 
         if let Some(intersection) = have_hit {
             let mut scattered = Ray3::default();
             let mut attenuation = Color::black();
-            if (*intersection.material).scatter(trace_context, ray, &intersection, &mut attenuation, &mut scattered) && depth < self.max_trace_depth {
+            if (*intersection.material).scatter(
+                trace_context,
+                ray,
+                &intersection,
+                &mut attenuation,
+                &mut scattered,
+            ) && depth < self.max_trace_depth
+            {
                 return self.trace_ray(trace_context, &scattered, objects, depth + 1) * attenuation;
             } else {
                 return attenuation;
